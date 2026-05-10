@@ -186,12 +186,20 @@ with chart4:
 
 
     # =========================
+# =========================
 # PREDICTION SECTION
 # =========================
 
 st.header("Employee Attrition Prediction")
 
-age = st.slider("Age", 18, 60, 30)
+# INPUTS
+
+age = st.slider(
+    "Age",
+    18,
+    60,
+    30
+)
 
 monthly_income = st.number_input(
     "Monthly Income",
@@ -214,33 +222,73 @@ years_company = st.slider(
     5
 )
 
+job_satisfaction = st.slider(
+    "Job Satisfaction",
+    1,
+    4,
+    2
+)
+
+work_life = st.slider(
+    "Work Life Balance",
+    1,
+    4,
+    2
+)
+
+environment = st.slider(
+    "Environment Satisfaction",
+    1,
+    4,
+    2
+)
+
 overtime = st.selectbox(
     "OverTime",
     ["Yes", "No"]
 )
 
-# Convert OverTime
+# CONVERT OVERTIME
+
 overtime_value = 1 if overtime == "Yes" else 0
 
-# Prediction Button
+# PREDICTION BUTTON
+
 if st.button("Predict"):
+
+    # COPY SAMPLE
 
     sample = X.iloc[0:1].copy()
 
+    # UPDATE VALUES
+
     sample["Age"] = age
+
     sample["MonthlyIncome"] = monthly_income
+
     sample["DistanceFromHome"] = distance
+
     sample["YearsAtCompany"] = years_company
 
-    # Set overtime column
+    sample["JobSatisfaction"] = job_satisfaction
+
+    sample["WorkLifeBalance"] = work_life
+
+    sample["EnvironmentSatisfaction"] = environment
+
+    # OVERTIME
+
     if "OverTime" in sample.columns:
+
         sample["OverTime"] = overtime_value
 
-    prediction = model.predict(sample)[0]
+    # PROBABILITY
 
     probability = model.predict_proba(sample)[0][1]
 
-    if prediction == 1:
+    # RESULT
+
+    if probability > 0.5:
 
         st.error(
             f"Employee is likely to leave the company. "
