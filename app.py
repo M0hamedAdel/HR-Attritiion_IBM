@@ -256,11 +256,15 @@ overtime_value = 1 if overtime == "Yes" else 0
 
 if st.button("Predict"):
 
-    # COPY SAMPLE
+    # CREATE EMPTY SAMPLE
 
-    sample = X.iloc[0:1].copy()
+    sample = pd.DataFrame(columns=X.columns)
 
-    # UPDATE VALUES
+    # FILL WITH ZEROS
+
+    sample.loc[0] = 0
+
+    # INPUT VALUES
 
     sample["Age"] = age
 
@@ -282,15 +286,15 @@ if st.button("Predict"):
 
         sample["OverTime"] = overtime_value
 
-    # PROBABILITY
+    # PREDICTION PROBABILITY
 
     probability = model.predict_proba(sample)[0][1]
 
-    # PERCENTAGE
+    # CONVERT TO PERCENTAGE
 
     risk_percent = round(probability * 100, 2)
 
-    # RESULT
+    # FINAL RESULT
 
     if probability > 0.5:
 
