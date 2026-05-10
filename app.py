@@ -79,17 +79,27 @@ X_train, X_test, y_train, y_test = train_test_split(
 )
 
 # =========================
-# XGBOOST MODEL
+# TRAIN XGBOOST MODEL
 # =========================
 
-model = XGBClassifier(
-    n_estimators=100,
-    max_depth=5,
-    learning_rate=0.1,
-    random_state=42
-)
+@st.cache_resource
+def train_model():
 
-model.fit(X_train, y_train)
+    model = XGBClassifier(
+        n_estimators=70,
+        max_depth=4,
+        learning_rate=0.1,
+        subsample=0.8,
+        colsample_bytree=0.8,
+        random_state=42,
+        eval_metric="logloss"
+    )
+
+    model.fit(X_train, y_train)
+
+    return model
+
+model = train_model()
 
 # =========================
 # FEATURE IMPORTANCE
@@ -303,13 +313,15 @@ if st.button("Predict"):
     if "OverTime" in sample.columns:
         sample["OverTime"] = overtime_value
 
-    # Probability
+    # Prediction Probability
 
     probability = model.predict_proba(sample)[0][1]
 
+    # Convert to Percentage
+
     risk_percent = round(probability * 100, 2)
 
-    # Final Result
+    # Risk Levels
 
     if probability < 0.3:
 
