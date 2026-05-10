@@ -286,18 +286,22 @@ if st.button("Predict"):
 
     probability = model.predict_proba(sample)[0][1]
 
+    # PERCENTAGE
+
+    risk_percent = round(probability * 100, 2)
+
     # RESULT
 
     if probability > 0.5:
 
         st.error(
-            f"Employee is likely to leave the company. "
-            f"Risk Score: {probability:.2f}"
+            f"Employee is likely to leave the company.\n\n"
+            f"Risk Score: {risk_percent}%"
         )
 
     else:
 
         st.success(
-            f"Employee is likely to stay. "
-            f"Risk Score: {probability:.2f}"
+            f"Employee is likely to stay.\n\n"
+            f"Risk Score: {risk_percent}%"
         )
