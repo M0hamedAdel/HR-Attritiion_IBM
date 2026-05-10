@@ -1,11 +1,11 @@
-# app.py
-
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from sklearn.ensemble import RandomForestClassifier
+
+from xgboost import XGBClassifier
 
 # =========================
 # PAGE CONFIG
@@ -31,25 +31,29 @@ df = load_data()
 # =========================
 
 # Convert target column
+
 df["Attrition"] = df["Attrition"].map({
     "Yes": 1,
     "No": 0
 })
 
-# Label for charts
+# Labels for charts
+
 df["Attrition_Label"] = df["Attrition"].map({
     1: "Left",
     0: "Stayed"
 })
 
 # =========================
-# MACHINE LEARNING
+# FEATURES & TARGET
 # =========================
 
 X = df.drop(["Attrition", "Attrition_Label"], axis=1)
+
 y = df["Attrition"]
 
 # Remove unnecessary columns
+
 X = X.drop([
     "EmployeeCount",
     "StandardHours",
@@ -57,12 +61,16 @@ X = X.drop([
 ], axis=1, errors="ignore")
 
 # Encode categorical columns
+
 le = LabelEncoder()
 
 for col in X.select_dtypes(include=["object"]).columns:
     X[col] = le.fit_transform(X[col])
 
-# Split data
+# =========================
+# TRAIN TEST SPLIT
+# =========================
+
 X_train, X_test, y_train, y_test = train_test_split(
     X,
     y,
@@ -70,15 +78,23 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=42
 )
 
-# Train model
-model = RandomForestClassifier(
-    class_weight="balanced",
+# =========================
+# XGBOOST MODEL
+# =========================
+
+model = XGBClassifier(
+    n_estimators=100,
+    max_depth=5,
+    learning_rate=0.1,
     random_state=42
 )
 
 model.fit(X_train, y_train)
 
-# Feature Importance
+# =========================
+# FEATURE IMPORTANCE
+# =========================
+
 importance = pd.DataFrame({
     "Feature": X.columns,
     "Importance": model.feature_importances_
@@ -101,13 +117,18 @@ selected_department = st.sidebar.selectbox(
 )
 
 # Filtered Data
+
 dff = df[df["Department"] == selected_department]
+
+# =========================
+# TITLE
+# =========================
+
+st.title("Employee Attrition Dashboard")
 
 # =========================
 # KPI METRICS
 # =========================
-
-st.title("Employee Attrition Dashboard")
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -164,7 +185,7 @@ with chart3:
         dff,
         x="Attrition_Label",
         y="MonthlyIncome",
-        title="Attrition vs Monthly Income",
+        title="Monthly Income vs Attrition",
         template="plotly_dark"
     )
 
@@ -181,11 +202,8 @@ with chart4:
         template="plotly_dark"
     )
 
-
     st.plotly_chart(fig_importance, use_container_width=True)
 
-
-    # =========================
 # =========================
 # PREDICTION SECTION
 # =========================
@@ -248,23 +266,23 @@ overtime = st.selectbox(
     ["Yes", "No"]
 )
 
-# CONVERT OVERTIME
+# Convert Overtime
 
 overtime_value = 1 if overtime == "Yes" else 0
 
-# PREDICTION BUTTON
+# =========================
+# PREDICTION
+# =========================
 
 if st.button("Predict"):
 
-    # CREATE EMPTY SAMPLE
+    # Create Empty Sample
 
     sample = pd.DataFrame(columns=X.columns)
 
-    # FILL WITH ZEROS
-
     sample.loc[0] = 0
 
-    # INPUT VALUES
+    # Input Values
 
     sample["Age"] = age
 
@@ -280,32 +298,36 @@ if st.button("Predict"):
 
     sample["EnvironmentSatisfaction"] = environment
 
-    # OVERTIME
+    # Overtime
 
     if "OverTime" in sample.columns:
-
         sample["OverTime"] = overtime_value
 
-    # PREDICTION PROBABILITY
+    # Probability
 
     probability = model.predict_proba(sample)[0][1]
 
-    # CONVERT TO PERCENTAGE
-
     risk_percent = round(probability * 100, 2)
 
-    # FINAL RESULT
+    # Final Result
 
-    if probability > 0.5:
+    if probability < 0.3:
 
-        st.error(
-            f"Employee is likely to leave the company.\n\n"
+        st.success(
+            f"Low Attrition Risk\n\n"
+            f"Risk Score: {risk_percent}%"
+        )
+
+    elif probability < 0.6:
+
+        st.warning(
+            f"Medium Attrition Risk\n\n"
             f"Risk Score: {risk_percent}%"
         )
 
     else:
 
-        st.success(
-            f"Employee is likely to stay.\n\n"
+        st.error(
+            f"High Attrition Risk\n\n"
             f"Risk Score: {risk_percent}%"
         )
