@@ -22,7 +22,9 @@ app = FastAPI(
 
 df = pd.read_csv("HR_Employee_Attrition.csv")
 
-# Convert Target
+# =========================
+# PREPROCESSING
+# =========================
 
 df["Attrition"] = df["Attrition"].map({
     "Yes": 1,
@@ -37,7 +39,7 @@ X = df.drop("Attrition", axis=1)
 
 y = df["Attrition"]
 
-# Remove useless columns
+# Remove unnecessary columns
 
 X = X.drop([
     "EmployeeCount",
@@ -89,17 +91,33 @@ class EmployeeData(BaseModel):
 
     Age: int
 
+    Department: str
+
     MonthlyIncome: int
 
     DistanceFromHome: int
 
     YearsAtCompany: int
 
+    YearsWithCurrManager: int
+
+    JobLevel: int
+
+    StockOptionLevel: int
+
+    NumCompaniesWorked: int
+
+    JobInvolvement: int
+
+    PerformanceRating: int
+
     JobSatisfaction: int
 
     WorkLifeBalance: int
 
     EnvironmentSatisfaction: int
+
+    MaritalStatus: str
 
     OverTime: str
 
@@ -121,15 +139,49 @@ def home():
 @app.post("/predict")
 def predict(data: EmployeeData):
 
-    # Create Empty Sample
+    # =========================
+    # ENCODING
+    # =========================
+
+    department_mapping = {
+
+        "Human Resources": 0,
+
+        "Research & Development": 1,
+
+        "Sales": 2
+    }
+
+    marital_mapping = {
+
+        "Divorced": 0,
+
+        "Married": 1,
+
+        "Single": 2
+    }
+
+    overtime_value = 1 if data.OverTime == "Yes" else 0
+
+    department_value = department_mapping[data.Department]
+
+    marital_value = marital_mapping[data.MaritalStatus]
+
+    # =========================
+    # CREATE SAMPLE
+    # =========================
 
     sample = pd.DataFrame(columns=X.columns)
 
     sample.loc[0] = 0
 
-    # Input Values
+    # =========================
+    # INPUT VALUES
+    # =========================
 
     sample["Age"] = data.Age
+
+    sample["Department"] = department_value
 
     sample["MonthlyIncome"] = data.MonthlyIncome
 
@@ -137,33 +189,45 @@ def predict(data: EmployeeData):
 
     sample["YearsAtCompany"] = data.YearsAtCompany
 
+    sample["YearsWithCurrManager"] = data.YearsWithCurrManager
+
+    sample["JobLevel"] = data.JobLevel
+
+    sample["StockOptionLevel"] = data.StockOptionLevel
+
+    sample["NumCompaniesWorked"] = data.NumCompaniesWorked
+
+    sample["JobInvolvement"] = data.JobInvolvement
+
+    sample["PerformanceRating"] = data.PerformanceRating
+
     sample["JobSatisfaction"] = data.JobSatisfaction
 
     sample["WorkLifeBalance"] = data.WorkLifeBalance
 
     sample["EnvironmentSatisfaction"] = data.EnvironmentSatisfaction
 
-    # OverTime
+    sample["MaritalStatus"] = marital_value
 
-    overtime_value = 1 if data.OverTime == "Yes" else 0
+    sample["OverTime"] = overtime_value
 
-    if "OverTime" in sample.columns:
-
-        sample["OverTime"] = overtime_value
-
-    # Prediction Probability
+    # =========================
+    # PREDICTION
+    # =========================
 
     probability = model.predict_proba(sample)[0][1]
 
     risk_percent = round(probability * 100, 2)
 
-    # Risk Level
+    # =========================
+    # RISK LEVEL
+    # =========================
 
-    if probability < 0.3:
+    if probability < 0.30:
 
         risk_level = "Low Risk"
 
-    elif probability < 0.6:
+    elif probability < 0.60:
 
         risk_level = "Medium Risk"
 
@@ -171,7 +235,9 @@ def predict(data: EmployeeData):
 
         risk_level = "High Risk"
 
-    # Return Result
+    # =========================
+    # RETURN RESULT
+    # =========================
 
     return {
 
