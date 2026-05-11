@@ -1,6 +1,7 @@
-streamlit
+fastapi
+uvicorn
 pandas
 numpy
-plotly
 scikit-learn
 xgboost
+pydantic
