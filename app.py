@@ -222,7 +222,9 @@ with chart4:
 
 st.header("Employee Attrition Prediction")
 
+# =========================
 # INPUTS
+# =========================
 
 age = st.slider(
     "Age",
@@ -261,6 +263,48 @@ years_company = st.slider(
     5
 )
 
+years_manager = st.slider(
+    "Years With Current Manager",
+    0,
+    20,
+    5
+)
+
+job_level = st.slider(
+    "Job Level",
+    1,
+    5,
+    2
+)
+
+stock_option = st.slider(
+    "Stock Option Level",
+    0,
+    3,
+    1
+)
+
+num_companies = st.slider(
+    "Num Companies Worked",
+    0,
+    10,
+    2
+)
+
+job_involvement = st.slider(
+    "Job Involvement",
+    1,
+    4,
+    2
+)
+
+performance = st.slider(
+    "Performance Rating",
+    1,
+    4,
+    3
+)
+
 job_satisfaction = st.slider(
     "Job Satisfaction",
     1,
@@ -280,6 +324,15 @@ environment = st.slider(
     1,
     4,
     2
+)
+
+marital_status = st.selectbox(
+    "Marital Status",
+    [
+        "Single",
+        "Married",
+        "Divorced"
+    ]
 )
 
 overtime = st.selectbox(
@@ -304,6 +357,17 @@ department_mapping = {
 
 department_value = department_mapping[department]
 
+marital_mapping = {
+
+    "Divorced": 0,
+
+    "Married": 1,
+
+    "Single": 2
+}
+
+marital_value = marital_mapping[marital_status]
+
 # =========================
 # PREDICTION
 # =========================
@@ -316,35 +380,61 @@ if st.button("Predict"):
 
     sample.loc[0] = 0
 
-    # Input Values
+    # =========================
+    # INPUT VALUES
+    # =========================
 
-    sample["Age"] = age
-
-    sample["MonthlyIncome"] = monthly_income
-
-    sample["DistanceFromHome"] = distance
-
-    sample["YearsAtCompany"] = years_company
-
-    sample["JobSatisfaction"] = job_satisfaction
-
-    sample["WorkLifeBalance"] = work_life
-
-    sample["EnvironmentSatisfaction"] = environment
-
-    # Department
+    if "Age" in sample.columns:
+        sample["Age"] = age
 
     if "Department" in sample.columns:
-
         sample["Department"] = department_value
 
-    # OverTime
+    if "MonthlyIncome" in sample.columns:
+        sample["MonthlyIncome"] = monthly_income
+
+    if "DistanceFromHome" in sample.columns:
+        sample["DistanceFromHome"] = distance
+
+    if "YearsAtCompany" in sample.columns:
+        sample["YearsAtCompany"] = years_company
+
+    if "YearsWithCurrManager" in sample.columns:
+        sample["YearsWithCurrManager"] = years_manager
+
+    if "JobLevel" in sample.columns:
+        sample["JobLevel"] = job_level
+
+    if "StockOptionLevel" in sample.columns:
+        sample["StockOptionLevel"] = stock_option
+
+    if "NumCompaniesWorked" in sample.columns:
+        sample["NumCompaniesWorked"] = num_companies
+
+    if "JobInvolvement" in sample.columns:
+        sample["JobInvolvement"] = job_involvement
+
+    if "PerformanceRating" in sample.columns:
+        sample["PerformanceRating"] = performance
+
+    if "JobSatisfaction" in sample.columns:
+        sample["JobSatisfaction"] = job_satisfaction
+
+    if "WorkLifeBalance" in sample.columns:
+        sample["WorkLifeBalance"] = work_life
+
+    if "EnvironmentSatisfaction" in sample.columns:
+        sample["EnvironmentSatisfaction"] = environment
+
+    if "MaritalStatus" in sample.columns:
+        sample["MaritalStatus"] = marital_value
 
     if "OverTime" in sample.columns:
-
         sample["OverTime"] = overtime_value
 
-    # Prediction Probability
+    # =========================
+    # PREDICTION
+    # =========================
 
     probability = model.predict_proba(sample)[0][1]
 
@@ -352,16 +442,18 @@ if st.button("Predict"):
 
     risk_percent = round(probability * 100, 2)
 
-    # Risk Levels
+    # =========================
+    # RESULT
+    # =========================
 
-    if probability < 0.3:
+    if probability < 0.30:
 
         st.success(
             f"Low Attrition Risk\n\n"
             f"Risk Score: {risk_percent}%"
         )
 
-    elif probability < 0.6:
+    elif probability < 0.60:
 
         st.warning(
             f"Medium Attrition Risk\n\n"
