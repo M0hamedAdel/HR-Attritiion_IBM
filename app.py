@@ -226,11 +226,11 @@ st.header("Employee Attrition Prediction")
 # INPUTS
 # =========================
 
-age = st.slider(
+age = st.number_input(
     "Age",
-    18,
-    60,
-    30
+    min_value=18,
+    max_value=60,
+    value=30
 )
 
 department = st.selectbox(
@@ -249,81 +249,67 @@ monthly_income = st.number_input(
     value=5000
 )
 
-distance = st.slider(
+distance = st.number_input(
     "Distance From Home",
-    1,
-    30,
-    5
+    min_value=1,
+    max_value=30,
+    value=5
 )
 
-years_company = st.slider(
+years_company = st.number_input(
     "Years At Company",
-    0,
-    40,
-    5
+    min_value=0,
+    max_value=40,
+    value=5
 )
 
-years_manager = st.slider(
+years_manager = st.number_input(
     "Years With Current Manager",
-    0,
-    20,
-    5
+    min_value=0,
+    max_value=20,
+    value=5
 )
 
-job_level = st.slider(
+job_level = st.selectbox(
     "Job Level",
-    1,
-    5,
-    2
+    [1, 2, 3, 4, 5]
 )
 
-stock_option = st.slider(
+stock_option = st.selectbox(
     "Stock Option Level",
-    0,
-    3,
-    1
+    [0, 1, 2, 3]
 )
 
-num_companies = st.slider(
+num_companies = st.number_input(
     "Num Companies Worked",
-    0,
-    10,
-    2
+    min_value=0,
+    max_value=10,
+    value=2
 )
 
-job_involvement = st.slider(
+job_involvement = st.selectbox(
     "Job Involvement",
-    1,
-    4,
-    2
+    [1, 2, 3, 4]
 )
 
-performance = st.slider(
+performance = st.selectbox(
     "Performance Rating",
-    1,
-    4,
-    3
+    [1, 2, 3, 4]
 )
 
-job_satisfaction = st.slider(
+job_satisfaction = st.selectbox(
     "Job Satisfaction",
-    1,
-    4,
-    2
+    [1, 2, 3, 4]
 )
 
-work_life = st.slider(
+work_life = st.selectbox(
     "Work Life Balance",
-    1,
-    4,
-    2
+    [1, 2, 3, 4]
 )
 
-environment = st.slider(
+environment = st.selectbox(
     "Environment Satisfaction",
-    1,
-    4,
-    2
+    [1, 2, 3, 4]
 )
 
 marital_status = st.selectbox(
@@ -335,7 +321,7 @@ marital_status = st.selectbox(
     ]
 )
 
-overtime = st.selectbox(
+overtime = st.radio(
     "OverTime",
     ["Yes", "No"]
 )
